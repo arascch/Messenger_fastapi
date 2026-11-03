@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen py-8">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <h1 class="text-2xl font-bold text-slate-800 mb-4">Live Chat 💬</h1>
+
+        <!-- 1. Message Display Box -->
+        <ul id="messages" class="h-64 overflow-y-auto border border-slate-200 rounded-lg p-3 mb-4 space-y-2 text-slate-700 bg-slate-50">
+        </ul>
+
+        <!-- 2. Message Input Form -->
+        <form onsubmit="sendMessage(event)" class="flex gap-2">
+            <input type="text" id="messageText" placeholder="Type a message..." required
+                   class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                Send
+            </button>
+        </form>
+    </div>
+
+    <!-- 3. WebSocket JavaScript -->
+    <script>
+        const username = prompt("Enter your username:") || "Guest";
+        const ws = new WebSocket(`ws://localhost:8000/ws/${username}`);
+
+        // Listen for incoming messages from the server
+        ws.onmessage = function(event) {
+            const messagesList = document.getElementById("messages");
+            const newMessage = document.createElement("li");
+            newMessage.textContent = event.data;
+            messagesList.appendChild(newMessage);
+        };
+
+        // Send typed message to the server
+        function sendMessage(event) {
+            event.preventDefault(); // Stop the form from refreshing the page
+            const input = document.getElementById("messageText");
+            ws.send(input.value);
+            input.value = ""; // Clear the input box
+        }
+    </script>
+</body>
+</html>
